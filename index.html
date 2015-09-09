@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport"
+		content="width=device-width, initial-scale=1, maximum-scale=1">
+	<title>Candy Fucker</title>
+	<style>
+		html{
+			height: 100%;
+		}
+		body{
+			background-color: black;
+			color: grey;
+			font-family: Arial, sans-serif;
+			margin: 0;
+			padding: 0;
+			text-align: center;
+			height: 100%;
+		}
+		#screen{
+			margin: 0 auto;
+			display: block;
+			width: 100%;
+			max-width: 640px;
+			max-height: 100%;
+		}
+	</style>
+</head>
+<body>
+	<canvas id="screen" width="640" height="480" />
+	<script src="code/GameLib.js"></script>
+	<script src="code/CandyFucker.js"></script>
+	<script>
+		new CandyFucker("screen");
+	</script>
+</body>
+</html>
