@@ -113,6 +113,9 @@ CandyFucker.prototype = {
 		this.Changed = true;
 		return candy;
 	},
+	RandomCandy: function(){
+		return this.CandyTypes[Math.floor(Math.random() * this.CandyTypes.length)]; 
+	},
 	BuildGrid: function(width, height){
 		var x,y;
 		this.GridSize = {X: width, Y: height};
@@ -122,9 +125,8 @@ CandyFucker.prototype = {
 		for(y=0;y<height;y++){
 			this.Grid.push([]);
 			for(x=0;x<width;x++){
-				var candyType = this.CandyTypes[Math.floor(Math.random() * this.CandyTypes.length)]; 
 				var entCandy = new CandyEntity(this,
-					candyType,
+					this.RandomCandy(),
 					{X: x, Y: y});
 				this.Grid[y].push(entCandy);
 				this.GameScreen.AddEntity(entCandy);
@@ -236,7 +238,7 @@ CandyFucker.prototype = {
 					if(candy){
 						candy.Delete();
 						points += pointsMultiplier;
-						pointsMultiplier = pointsMultiplier*2;
+						pointsMultiplier = pointsMultiplier + 10;
 					}
 				}
 			}else{
@@ -246,7 +248,7 @@ CandyFucker.prototype = {
 					if(candy){
 						candy.Delete();
 						points += pointsMultiplier;
-						pointsMultiplier = pointsMultiplier*2;
+						pointsMultiplier = pointsMultiplier + 10;
 					}
 				}
 			}
@@ -262,7 +264,31 @@ CandyFucker.prototype = {
 		return (runs.length>0);
 	},
 	CandyFall: function(){
-		// FIXME: Implement this
+		var falling = false;
+		var x,y;
+		for(y=(this.GridSize.Y-1);y>=0;y--){
+			for(x=0;x<this.GridSize.X;x++){
+				var candy = this.GetCandy(x, y);
+				if(candy==null){
+					if(y==0){
+						var entCandy = new CandyEntity(this,
+							this.RandomCandy(),
+							{X: x, Y: y-1});
+						this.GameScreen.AddEntity(entCandy);
+						this.SetCandy(x, y, entCandy);
+						falling = true;
+					}else{
+						var candyUp = this.RemoveCandy(x, y-1);
+						if(candyUp){
+							this.SetCandy(x, y, candyUp);
+							falling = true;
+						}
+					}
+					
+				}
+			}
+		}
+		return falling;
 	},
 	Debug: false
 };
