@@ -5,18 +5,32 @@ window.Images = new ImageLoader();
 //
 // CandyEntity
 //
-var CandyEntity = function(game, position, type){
+var CandyEntity = function(game, color, gridPosition){
 	this.Game = game;
+	this.GridPosition = gridPosition || {X: 0, Y: 0};
+	this.Color = color;
 	this.GameEntity = new GameEntity(
 		game.GameScreen, 
-		position, 
+		null, 
 		{X: 32, Y: 32}, 
-		Images.GetImage(type), 
-		type
+		Images.GetImage(color), 
+		color
 	);
+	this.SetGridPosition(gridPosition.X, gridPosition.Y);
 };
 CandyEntity.prototype = {
 	Update: function(){ },
+	SetGridPosition: function(x, y){
+		this.GridPosition.X = x;
+		this.GridPosition.Y = y;
+		this.GameEntity.SetPosition({
+			X: this.Game.GridOffset.X + (x * 32), 
+			Y: this.Game.GridOffset.Y + (y * 32)
+		});
+	},
+	Delete: function(){
+		this.GameEntity.Delete();
+	},
 	Debug: false
 };
 
@@ -33,7 +47,9 @@ var CandyFucker = function(idScreen){
 		this.End.bind(this)
 	);
 	this.Grid = null;
-	this.GridOffset = {}
+	this.GridOffset = {X: 0, Y: 0};
+	this.CandyTypes = ["Red", "Blue", "Cyan", "Green", "Yellow"];
+	this.Changed = false;
 	
 	window.Images.LoadImages(
 		[
@@ -51,23 +67,44 @@ var CandyFucker = function(idScreen){
 };
 CandyFucker.prototype = {
 	Init: function(gameScreen){
-		var test;
-		test = new CandyEntity(this, {X: 100, Y: 100}, "Red");
-		this.GameScreen.AddEntity(test);
-		test = new CandyEntity(this, {X: 132, Y: 100}, "Blue");
-		this.GameScreen.AddEntity(test);
-		test = new CandyEntity(this, {X: 164, Y: 100}, "Cyan");
-		this.GameScreen.AddEntity(test);
-		test = new CandyEntity(this, {X: 196, Y: 100}, "Green");
-		this.GameScreen.AddEntity(test);
-		test = new CandyEntity(this, {X: 228, Y: 100}, "Yellow");
-		this.GameScreen.AddEntity(test);
+		this.BuildGrid(15, 15);
 	},
 	Proc: function(gameScreen){
 		
 	},
-	End: function(gameScreen){
-		
+	End: function(gameScreen){ },
+	GetCandy: function(x, y){
+		return this.Grid[y][x];
+	},
+	SetCandy: function(x, y, candy){
+		this.Grid[y][x] = candy;
+		this.Changed = true;
+		candy.SetGridPosition(x, y);
+	},
+	RemoveCandy: function(x, y){
+		var candy = this.Grid[y][x];
+		this.Grid[y][x] = null;
+		this.Changed = true;
+		return candy;
+	},
+	BuildGrid: function(width, height){
+		var x,y;
+		this.GridSize = {X: width, Y: height};
+		this.GridOffset.X = (this.GameScreen.Size.X - ((width - 1) * 32)) / 2.0;
+		this.GridOffset.Y = (this.GameScreen.Size.Y - ((height - 1) * 32)) / 2.0;
+		this.Grid = [];
+		for(y=0;y<height;y++){
+			this.Grid.push([]);
+			for(x=0;x<width;x++){
+				var candyType = this.CandyTypes[Math.floor(Math.random() * this.CandyTypes.length)]; 
+				var entCandy = new CandyEntity(this,
+					candyType,
+					{X: x, Y: y});
+				this.Grid[y].push(entCandy);
+				this.GameScreen.AddEntity(entCandy);
+			}
+		}
+		this.Changed = true;
 	},
 	Debug: false
 };
