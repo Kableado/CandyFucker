@@ -23,7 +23,7 @@ CandyEntity.prototype = {
 	SetGridPosition: function(x, y){
 		this.GridPosition.X = x;
 		this.GridPosition.Y = y;
-		this.GameEntity.SetPosition({
+		this.GameEntity.UpdatePosition({
 			X: this.Game.GridOffset.X + (x * 32), 
 			Y: this.Game.GridOffset.Y + (y * 32)
 		});
@@ -44,7 +44,8 @@ var CandyFucker = function(idScreen, idInfoDisplay){
 	this.GameScreen = new GameScreen(idScreen, 
 		this.Init.bind(this),
 		this.Proc.bind(this),
-		this.End.bind(this)
+		this.End.bind(this),
+		10
 	);
 	this.InfoDisplay = document.getElementById(idInfoDisplay);
 	this.Grid = null;
@@ -82,7 +83,7 @@ CandyFucker.prototype = {
 				}
 			}else{
 				if(this.ApplyRules()){
-					this.Falling = true;
+					this.Falling = this.CandyFall();
 				}else{
 					this.Locked = false;
 				}
@@ -91,7 +92,7 @@ CandyFucker.prototype = {
 			if(this.Changed){
 				if(this.ApplyRules()){
 					this.Locked = true;
-					this.Falling = true;
+					this.Falling = this.CandyFall();
 				}
 			}
 		}
@@ -123,15 +124,23 @@ CandyFucker.prototype = {
 		this.GridSize = {X: width, Y: height};
 		this.GridOffset.X = (this.GameScreen.Size.X - ((width - 1) * 32)) / 2.0;
 		this.GridOffset.Y = (this.GameScreen.Size.Y - ((height - 1) * 32)) / 2.0;
+		// Allocate Grid
 		this.Grid = [];
 		for(y=0;y<height;y++){
 			this.Grid.push([]);
 			for(x=0;x<width;x++){
+				this.Grid[y].push(null);
+			}
+		}
+		
+		// Fill Grid
+		for(y=0;y<height;y++){
+			for(x=0;x<width;x++){
 				var entCandy = new CandyEntity(this,
 					this.RandomCandy(),
 					{X: x, Y: y});
-				this.Grid[y].push(entCandy);
 				this.GameScreen.AddEntity(entCandy);
+				this.SetCandy(x, y, entCandy);
 			}
 		}
 		this.Changed = true;
@@ -228,6 +237,16 @@ CandyFucker.prototype = {
 		}
 		return verticalRuns;
 	},
+	ExplodeCandy: function(x, y){
+		var entCandy = this.RemoveCandy(x, y);
+		if(entCandy){
+			entCandy.Delete();
+			// FIXME: explosion FX
+			
+			return true;
+		}
+		return false;
+	},
 	RemoveRuns: function(runs){
 		var pointsMultiplier = 10;
 		var points = 0;
@@ -236,9 +255,7 @@ CandyFucker.prototype = {
 			if(run.Start.X == run.End.X){
 				// Vertical run
 				for(var y=run.Start.Y;y<=run.End.Y;y++){
-					var candy = this.RemoveCandy(run.Start.X, y);
-					if(candy){
-						candy.Delete();
+					if(this.ExplodeCandy(run.Start.X, y)){
 						points += pointsMultiplier;
 						pointsMultiplier = pointsMultiplier + 10;
 					}
@@ -246,9 +263,7 @@ CandyFucker.prototype = {
 			}else{
 				// Horizontal run
 				for(var x=run.Start.X;x<=run.End.X;x++){
-					var candy = this.RemoveCandy(x, run.Start.Y);
-					if(candy){
-						candy.Delete();
+					if(this.ExplodeCandy(x, run.Start.Y)){
 						points += pointsMultiplier;
 						pointsMultiplier = pointsMultiplier + 10;
 					}
