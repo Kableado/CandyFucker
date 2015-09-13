@@ -3,7 +3,7 @@
 //
 // GameScreen
 //
-var GameScreen = function(idScreen, funcInit, funcProc, funcEnd){
+var GameScreen = function(idScreen, funcInit, funcProc, funcEnd, tps){
 	this.Screen = document.getElementById(idScreen);
 	this.Ctx = this.Screen.getContext('2d');
 	this.Size = {X: this.Screen.width, Y: this.Screen.height};
@@ -13,16 +13,29 @@ var GameScreen = function(idScreen, funcInit, funcProc, funcEnd){
 	this.FuncInit = funcInit;
 	this.FuncProc = funcProc;
 	this.FuncEnd = funcEnd;
+	this.TPS = tps || 10;
+	
+	this.TickTime = 1000/this.TPS;
+	this.AccTickTime = this.TickTime;
+	this.PreviousTime = 0;
 	
 	var self = this;
 	this.Tick = function(){
-		if(self.FuncProc){
-			self.FuncProc(self);
+		while(self.AccTickTime>=self.TickTime){
+			self.Update();
+			if(self.FuncProc){
+				self.FuncProc(self);
+			}
+			self.CleanDead();
+			self.InsertAdded();
+			self.AccTickTime -= self.TickTime;
 		}
-		self.CleanDead();
-		self.InsertAdded();
-		self.Update();
-		self.Draw();
+		self.Draw(self.AccTickTime/self.TickTime);
+		
+		var timeNow = performance.now();
+		self.AccTickTime += timeNow - self.PreviousTime;
+		self.PreviousTime = timeNow;
+		
 		if(self.Running){
 			window.requestAnimationFrame(self.Tick);
 		}else{
@@ -60,12 +73,12 @@ GameScreen.prototype = {
 			}
 		}
 	},
-	Draw: function(){
+	Draw: function(factor){
 		this.Ctx.clearRect(0, 0, this.Size.X, this.Size.Y);
 		for(var i=0,n=this.Entities.length;i<n;i++){
 			var entity = this.Entities[i];
 			if(!entity.GameEntity.Deleted){
-				entity.GameEntity.Draw();
+				entity.GameEntity.Draw(factor);
 			}
 		}
 	},
@@ -76,6 +89,8 @@ GameScreen.prototype = {
 			this.FuncInit(this);
 		}
 		this.Running = true;
+		
+		this.PreviousTime = performance.now();
 		this.Tick();
 	},
 	Stop: function(){
@@ -94,30 +109,45 @@ GameScreen.prototype = {
 //
 var GameEntity = function(gameScreen, position, size, image, type){
 	this.GameScreen = gameScreen;
-	this.Position = position || {X: 0, Y: 0};
+	if(position){
+		this.Position = {X: position.X, Y: position.Y};
+		this.PositionDest = {X: position.X, Y: position.Y};
+	}else{
+		this.Position = {X: 0, Y: 0};
+		this.PositionDest = {X: 0, Y: 0};
+	}
 	this.Size = size || {X: 0, Y: 0};
 	this.Type = type || "Undefined";
 	this.Image = image;
 	this.Deleted = false;
 };
 GameEntity.prototype = {
-	Update: function(){ },
+	Update: function(){
+		this.Position.X = this.PositionDest.X;
+		this.Position.Y = this.PositionDest.Y;
+	},
 	Draw: function(factor){
 		if(!this.Image){ return; }
+		var x = this.Position.X - factor * (this.Position.X - this.PositionDest.X);
+		var y = this.Position.Y - factor * (this.Position.Y - this.PositionDest.Y);
 		this.GameScreen.Ctx.drawImage(this.Image,
-			this.Position.X - (this.Size.X / 2),
-			this.Position.Y - (this.Size.Y / 2));
+			x - (this.Size.X / 2),
+			y - (this.Size.Y / 2));
 	},
 	SetImage: function(image){
 		this.Image = image;
 	},
-	Move: function(deltaPosition){
-		this.Position.X += deltaPosition.X;
-		this.Position.Y += deltaPosition.Y;
-	},
 	SetPosition: function(position){
 		this.Position.X = position.X;
 		this.Position.Y = position.Y;
+		this.PositionDest.X = position.X;
+		this.PositionDest.Y = position.Y;
+	},
+	UpdatePosition: function(position){
+		this.Position.X = this.PositionDest.X;
+		this.Position.Y = this.PositionDest.Y;
+		this.PositionDest.X = position.X;
+		this.PositionDest.Y = position.Y;
 	},
 	Delete: function(){
 		this.Deleted = true;
@@ -166,7 +196,7 @@ ImageLoader.prototype = {
 				}
 			}
 			
-			console.log("Images: "+count+"/"+self.ImageCount);
+			console.log("Images: " + count + "/" + self.ImageCount);
 			if(count == self.ImageCount){
 				launched = true;
 				if(self.FuncOnLoad){
