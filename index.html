@@ -18,11 +18,19 @@
 			text-align: center;
 			height: 100%;
 		}
+		#infoDisplay{
+			display:block;
+			height:20px;
+			width: 100%;
+			line-height: 20px;
+			font-size: 15px;
+			color: rgb(220,220,220);
+		}
 		#screenContainer {
 			display: block;
 			position: relative;
 			width: 100%;
-			height: 100%;
+			height: calc(100% - 20px);
 			overflow: hidden;
 		}
 		#screen {
@@ -37,13 +45,14 @@
 	</style>
 </head>
 <body>
+	<div id="infoDisplay"></div>
 	<div id="screenContainer">
 		<canvas id="screen" width="512" height="512" />
 	</div>
 	<script src="code/GameLib.js"></script>
 	<script src="code/CandyFucker.js"></script>
 	<script>
-		new CandyFucker("screen");
+		new CandyFucker("screen", "infoDisplay");
 	</script>
 </body>
 </html>

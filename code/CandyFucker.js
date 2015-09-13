@@ -39,19 +39,21 @@ CandyEntity.prototype = {
 //
 // CandyFucker
 //
-var CandyFucker = function(idScreen){
+var CandyFucker = function(idScreen, idInfoDisplay){
 	var self = this;
 	this.GameScreen = new GameScreen(idScreen, 
 		this.Init.bind(this),
 		this.Proc.bind(this),
 		this.End.bind(this)
 	);
+	this.InfoDisplay = document.getElementById(idInfoDisplay);
 	this.Grid = null;
 	this.GridOffset = {X: 0, Y: 0};
 	this.CandyTypes = ["Red", "Blue", "Cyan", "Green", "Yellow"];
 	this.Locked = false;
 	this.Falling = false;
 	this.Changed = false;
+	this.Score = 0;
 	
 	window.Images.LoadImages(
 		[
@@ -70,21 +72,19 @@ var CandyFucker = function(idScreen){
 CandyFucker.prototype = {
 	Init: function(gameScreen){
 		this.BuildGrid(15, 15);
+		this.UpdateInfoDisplay();
 	},
 	Proc: function(gameScreen){
 		if(this.Locked){
 			if(this.Falling){
 				if(!this.CandyFall()){
 					this.Falling = false;
-					console.log("Stoped");
 				}
 			}else{
 				if(this.ApplyRules()){
 					this.Falling = true;
-					console.log("Falling");
 				}else{
 					this.Locked = false;
-					console.log("Stoped");
 				}
 			}
 		}else{
@@ -92,13 +92,15 @@ CandyFucker.prototype = {
 				if(this.ApplyRules()){
 					this.Locked = true;
 					this.Falling = true;
-					console.log("Falling");
 				}
 			}
 		}
 		this.Changed = false;
 	},
 	End: function(gameScreen){ },
+	UpdateInfoDisplay: function(){
+		this.InfoDisplay.innerHTML = "Score: " + this.Score;
+	},
 	GetCandy: function(x, y){
 		return this.Grid[y][x];
 	},
@@ -260,7 +262,11 @@ CandyFucker.prototype = {
 		var verticalRuns = this.ScanVerticalRuns();
 		var runs = horizontalRuns.concat(verticalRuns);
 		var points = this.RemoveRuns(runs);
-		console.log(points)
+		if(points>0){
+			this.Score += points;
+			this.UpdateInfoDisplay();
+			console.log("Score: +" + points);
+		}
 		return (runs.length>0);
 	},
 	CandyFall: function(){
