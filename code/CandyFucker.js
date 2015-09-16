@@ -125,14 +125,17 @@ CandyFucker.prototype = {
 		this.InfoDisplay.innerHTML = "Score: " + this.Score;
 	},
 	GetCandy: function(x, y){
+		if(x<0 || x>this.GridSize.X || y<0 || y>this.GridSize.Y){ return null; }
 		return this.Grid[y][x];
 	},
 	SetCandy: function(x, y, candy){
+		if(x<0 || x>this.GridSize.X || y<0 || y>this.GridSize.Y){ return; }
 		this.Grid[y][x] = candy;
 		this.Changed = true;
 		candy.SetGridPosition(x, y);
 	},
 	RemoveCandy: function(x, y){
+		if(x<0 || x>this.GridSize.X || y<0 || y>this.GridSize.Y){ return; }
 		var candy = this.Grid[y][x];
 		this.Grid[y][x] = null;
 		this.Changed = true;
@@ -374,9 +377,11 @@ CandyFucker.prototype = {
 		if(this.SwapDistance > this.MaxSwapDistance){
 			this.DoSwap();
 		}else{
-			this.SwapCandy1.SetOffset(-this.SwapDistance, 0);
 			if(this.SwapCandy2){
+				this.SwapCandy1.SetOffset(-this.SwapDistance, 0);
 				this.SwapCandy2.SetOffset(this.SwapDistance, 0);
+			}else{
+				this.SwapCandy1.ResetPosition();
 			}
 		}
 	},
@@ -392,9 +397,11 @@ CandyFucker.prototype = {
 		if(this.SwapDistance > this.MaxSwapDistance){
 			this.DoSwap();
 		}else{
-			this.SwapCandy1.SetOffset(this.SwapDistance, 0);
 			if(this.SwapCandy2){
+				this.SwapCandy1.SetOffset(this.SwapDistance, 0);
 				this.SwapCandy2.SetOffset(-this.SwapDistance, 0);
+			}else{
+				this.SwapCandy1.ResetPosition();
 			}
 		}
 	},
@@ -410,9 +417,11 @@ CandyFucker.prototype = {
 		if(this.SwapDistance > this.MaxSwapDistance){
 			this.DoSwap();
 		}else{
-			this.SwapCandy1.SetOffset(0, -this.SwapDistance);
 			if(this.SwapCandy2){
+				this.SwapCandy1.SetOffset(0, -this.SwapDistance);
 				this.SwapCandy2.SetOffset(0, this.SwapDistance);
+			}else{
+				this.SwapCandy1.ResetPosition();
 			}
 		}
 	},
@@ -428,9 +437,11 @@ CandyFucker.prototype = {
 		if(this.SwapDistance > this.MaxSwapDistance){
 			this.DoSwap();
 		}else{
-			this.SwapCandy1.SetOffset(0, this.SwapDistance);
 			if(this.SwapCandy2){
+				this.SwapCandy1.SetOffset(0, this.SwapDistance);
 				this.SwapCandy2.SetOffset(0, -this.SwapDistance);
+			}else{
+				this.SwapCandy1.ResetPosition();
 			}
 		}
 	},
