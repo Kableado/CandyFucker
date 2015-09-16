@@ -14,7 +14,7 @@ var CandyEntity = function(game, color, gridPosition){
 		null, 
 		{X: 32, Y: 32}, 
 		Images.GetImage(color), 
-		color
+		"Candy"
 	);
 	this.SetGridPosition(gridPosition.X, gridPosition.Y);
 };
@@ -30,6 +30,15 @@ CandyEntity.prototype = {
 	},
 	Delete: function(){
 		this.GameEntity.Delete();
+	},
+	SetOffset: function(x, y){
+		this.GameEntity.UpdatePosition({
+			X: (this.Game.GridOffset.X + (this.GridPosition.X * 32)) + x, 
+			Y: (this.Game.GridOffset.Y + (this.GridPosition.Y * 32)) + y
+		});
+	},
+	ResetPosition: function(){
+		this.SetGridPosition(this.GridPosition.X, this.GridPosition.Y);
 	},
 	Debug: false
 };
@@ -55,6 +64,13 @@ var CandyFucker = function(idScreen, idInfoDisplay){
 	this.Falling = false;
 	this.Changed = false;
 	this.Score = 0;
+	
+	this.SwapDirection = null;
+	this.SwapDistance = 0;
+	this.SwapCandy1 = null;
+	this.SwapCandy2 = null;
+	
+	this.MaxSwapDistance = 32;
 	
 	window.Images.LoadImages(
 		[
@@ -89,6 +105,11 @@ CandyFucker.prototype = {
 				}
 			}
 		}else{
+			if(this.GameScreen.Mouse.Down){
+				this.ProcessSwap();
+			}else{
+				this.CancelSwap();
+			}
 			if(this.Changed){
 				if(this.ApplyRules()){
 					this.Locked = true;
@@ -311,6 +332,144 @@ CandyFucker.prototype = {
 		}
 		return falling;
 	},
+	ProcessSwap: function(){
+		if(this.SwapDirection == null){
+			var candies = this.GameScreen.GetEntitiesUnderPoint(this.GameScreen.Mouse.StartPosition, "Candy");
+			if(candies == null || candies.length == 0){
+				this.CancelSwap();
+			}else{
+				this.StartSwap(candies[0]);
+			}
+		}
+		if(this.SwapDirection!=null){
+			var x = this.GameScreen.Mouse.EndPosition.X - this.GameScreen.Mouse.StartPosition.X;
+			var y = this.GameScreen.Mouse.EndPosition.Y - this.GameScreen.Mouse.StartPosition.Y;
+			if(Math.abs(x) > Math.abs(y)){
+				if(x>0){
+					this.ProcSwapRight(x, y);
+				}
+				if(x<0){
+					this.ProcSwapLeft(x, y);
+				}
+			}else{
+				if(y>0){
+					this.ProcSwapDown(x, y);
+				}
+				if(y<0){
+					this.ProcSwapUp(x, y);
+				}
+			}
+		}
+	},
+	ProcSwapLeft: function(x, y){
+		if(this.SwapDirection!="Left"){
+			this.SwapDirection = "Left"
+			if(this.SwapCandy2){
+				this.SwapCandy2.ResetPosition();
+			}
+			this.SwapCandy2 = this.GetCandy(this.SwapCandy1.GridPosition.X-1, this.SwapCandy1.GridPosition.Y);
+		}
+		this.SwapDistance = -x;
+		if(this.SwapDistance > this.MaxSwapDistance){
+			this.DoSwap();
+		}else{
+			this.SwapCandy1.SetOffset(-this.SwapDistance, 0);
+			if(this.SwapCandy2){
+				this.SwapCandy2.SetOffset(this.SwapDistance, 0);
+			}
+		}
+	},
+	ProcSwapRight: function(x, y){
+		if(this.SwapDirection!="Right"){
+			this.SwapDirection = "Right"
+			if(this.SwapCandy2){
+				this.SwapCandy2.ResetPosition();
+			}
+			this.SwapCandy2 = this.GetCandy(this.SwapCandy1.GridPosition.X+1, this.SwapCandy1.GridPosition.Y);
+		}
+		this.SwapDistance = x;
+		if(this.SwapDistance > this.MaxSwapDistance){
+			this.DoSwap();
+		}else{
+			this.SwapCandy1.SetOffset(this.SwapDistance, 0);
+			if(this.SwapCandy2){
+				this.SwapCandy2.SetOffset(-this.SwapDistance, 0);
+			}
+		}
+	},
+	ProcSwapUp: function(x, y){
+		if(this.SwapDirection!="Up"){
+			this.SwapDirection = "Up"
+			if(this.SwapCandy2){
+				this.SwapCandy2.ResetPosition();
+			}
+			this.SwapCandy2 = this.GetCandy(this.SwapCandy1.GridPosition.X, this.SwapCandy1.GridPosition.Y-1);
+		}
+		this.SwapDistance = -y;
+		if(this.SwapDistance > this.MaxSwapDistance){
+			this.DoSwap();
+		}else{
+			this.SwapCandy1.SetOffset(0, -this.SwapDistance);
+			if(this.SwapCandy2){
+				this.SwapCandy2.SetOffset(0, this.SwapDistance);
+			}
+		}
+	},
+	ProcSwapDown: function(x, y){
+		if(this.SwapDirection!="Down"){
+			this.SwapDirection = "Down"
+			if(this.SwapCandy2){
+				this.SwapCandy2.ResetPosition();
+			}
+			this.SwapCandy2 = this.GetCandy(this.SwapCandy1.GridPosition.X, this.SwapCandy1.GridPosition.Y+1);
+		}
+		this.SwapDistance = y;
+		if(this.SwapDistance > this.MaxSwapDistance){
+			this.DoSwap();
+		}else{
+			this.SwapCandy1.SetOffset(0, this.SwapDistance);
+			if(this.SwapCandy2){
+				this.SwapCandy2.SetOffset(0, -this.SwapDistance);
+			}
+		}
+	},
+	StartSwap: function(candy){
+		this.SwapDirection = "";
+		this.SwapCandy1 = candy;
+		this.SwapCandy2 = null;
+		this.SwapDistance = 0;
+	},
+	CancelSwap: function(){
+		this.GameScreen.Mouse.Cancel();
+		this.SwapDirection = null;
+		if(this.SwapCandy1){
+			this.SwapCandy1.ResetPosition();
+		}
+		if(this.SwapCandy2){
+			this.SwapCandy2.ResetPosition();
+		}
+		this.SwapCandy1 = null;
+		this.SwapCandy2 = null;
+		this.SwapDistance = 0;
+	},
+	DoSwap: function(){
+		if(this.SwapCandy1 == null || this.SwapCandy2 == null){
+			this.CancelSwap();
+			return;
+		}
+		var x1 = this.SwapCandy1.GridPosition.X;
+		var y1 = this.SwapCandy1.GridPosition.Y;
+		var x2 = this.SwapCandy2.GridPosition.X;
+		var y2 = this.SwapCandy2.GridPosition.Y;
+		var candy1 = this.RemoveCandy(x1, y1);
+		var candy2 = this.RemoveCandy(x2, y2);
+		this.SetCandy(x2, y2, candy1);
+		this.SetCandy(x1, y1, candy2);
+		this.GameScreen.Mouse.Cancel();
+		this.SwapDirection = null
+		this.SwapCandy1 = null;
+		this.SwapCandy2 = null;
+		this.SwapDistance = 0;
+	},
 	Debug: false
 };
-

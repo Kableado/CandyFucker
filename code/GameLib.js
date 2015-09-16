@@ -310,4 +310,3 @@ ImageLoader.prototype = {
 	},
 	Debug: false
 };
-
