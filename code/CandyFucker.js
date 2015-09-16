@@ -59,7 +59,8 @@ var CandyFucker = function(idScreen, idInfoDisplay){
 	this.InfoDisplay = document.getElementById(idInfoDisplay);
 	this.Grid = null;
 	this.GridOffset = {X: 0, Y: 0};
-	this.CandyTypes = ["Red", "Blue", "Cyan", "Green", "Yellow"];
+	//this.CandyTypes = ["Red", "Blue", "Cyan", "Green", "Yellow"];
+	this.CandyTypes = ["Red", "Blue", "Cyan", "Yellow"];
 	this.Locked = false;
 	this.Falling = false;
 	this.Changed = false;
@@ -88,7 +89,7 @@ var CandyFucker = function(idScreen, idInfoDisplay){
 };
 CandyFucker.prototype = {
 	Init: function(gameScreen){
-		this.BuildGrid(15, 15);
+		this.BuildGrid(12, 12);
 		this.UpdateInfoDisplay();
 	},
 	Proc: function(gameScreen){
