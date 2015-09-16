@@ -19,6 +19,8 @@ var GameScreen = function(idScreen, funcInit, funcProc, funcEnd, tps){
 	this.AccTickTime = this.TickTime;
 	this.PreviousTime = 0;
 	
+	this.Mouse = new Mouse(this.Screen, this.Size);
+	
 	var self = this;
 	this.Tick = function(){
 		while(self.AccTickTime>=self.TickTime){
@@ -26,6 +28,7 @@ var GameScreen = function(idScreen, funcInit, funcProc, funcEnd, tps){
 			if(self.FuncProc){
 				self.FuncProc(self);
 			}
+			self.Mouse.Update();
 			self.CleanDead();
 			self.InsertAdded();
 			self.AccTickTime -= self.TickTime;
@@ -151,6 +154,76 @@ GameEntity.prototype = {
 	},
 	Delete: function(){
 		this.Deleted = true;
+	},
+	Debug: false
+};
+
+
+/////////////////////////////////////////
+//
+// Mouse
+//
+var Mouse = function(screen, size){
+	this.Screen = screen;
+	this.Size = size || {X: screen.width, Y: screen.height};
+	
+	this.Down = false;
+	this.StartPosition = {X: 0, Y: 0};
+	this.EndPosition = {X: 0, Y: 0};
+	
+	this.Screen.onmousedown = this.OnMouseDown.bind(this);
+	this.Screen.onmousemove = this.OnMouseMove.bind(this);
+	this.Screen.onmouseup = this.OnMouseUp.bind(this);
+	this.Screen.onmouseleave = this.OnMouseLeave.bind(this);
+};
+Mouse.prototype = {
+	GetEventPoistion: function(event){
+		var position = {X: event.clientX, Y: event.clientY};
+		var element = this.Screen;
+		while(element){
+			position.X -= element.offsetLeft;
+			position.Y -= element.offsetTop;
+			element = element.offsetParent;
+		}
+		position.X = (position.X / this.Screen.offsetWidth) * this.Size.X;
+		position.Y = (position.Y / this.Screen.offsetHeight) * this.Size.Y;
+		return position;
+	},
+	OnMouseDown: function(event){
+		var position = this.GetEventPoistion(event);
+		this.RealDown = true;
+		this.Down = true;
+		this.StartPosition.X = position.X;
+		this.StartPosition.Y = position.Y;
+		this.EndPosition.X = position.X;
+		this.EndPosition.Y = position.Y;
+	},
+	OnMouseMove: function(event){
+		if(this.RealDown == false){ return; }
+		var position = this.GetEventPoistion(event);
+		this.RealDown = true;
+		this.Down = true;
+		this.EndPosition.X = position.X;
+		this.EndPosition.Y = position.Y;
+	},
+	OnMouseUp: function(event){
+		var position = this.GetEventPoistion(event);
+		this.RealDown = false;
+		this.EndPosition.X = position.X;
+		this.EndPosition.Y = position.Y;
+	},
+	OnMouseLeave: function(){
+		this.RealDown = false;
+		this.Down = false;
+	},
+	Update: function(){
+		if(this.RealDown == false){
+			this.Down = false;
+		}
+	},
+	Cancel: function(){
+		this.RealDown = false;
+		this.Down = false;
 	},
 	Debug: false
 };
