@@ -192,14 +192,18 @@ var Mouse = function(screen, size){
 	this.StartPosition = {X: 0, Y: 0};
 	this.EndPosition = {X: 0, Y: 0};
 	
-	this.Screen.onmousedown = this.OnMouseDown.bind(this);
-	this.Screen.onmousemove = this.OnMouseMove.bind(this);
-	this.Screen.onmouseup = this.OnMouseUp.bind(this);
-	this.Screen.onmouseleave = this.OnMouseLeave.bind(this);
+	this.Screen.addEventListener("mousedown", this.OnMouseDown.bind(this), false);
+	this.Screen.addEventListener("mousemove", this.OnMouseMove.bind(this), false);
+	this.Screen.addEventListener("mouseup", this.OnMouseUp.bind(this), false);
+	this.Screen.addEventListener("mouseleave", this.OnMouseLeave.bind(this), false);
+	this.Screen.addEventListener("touchstart", this.OnTouchStart.bind(this), false);
+	this.Screen.addEventListener("touchmove", this.OnTouchMove.bind(this), false);
+	this.Screen.addEventListener("touchend", this.OnTouchEnd.bind(this), false);
+	this.Screen.addEventListener("touchcancel", this.OnTouchEnd.bind(this), false);
 };
 Mouse.prototype = {
-	GetEventPoistion: function(event){
-		var position = {X: event.clientX, Y: event.clientY};
+	GetEventPoistion: function(positionEvent){
+		var position = {X: positionEvent.X, Y: positionEvent.Y};
 		var element = this.Screen;
 		while(element){
 			position.X -= element.offsetLeft;
@@ -211,7 +215,7 @@ Mouse.prototype = {
 		return position;
 	},
 	OnMouseDown: function(event){
-		var position = this.GetEventPoistion(event);
+		var position = this.GetEventPoistion({X: event.clientX, Y: event.clientY});
 		this.RealDown = true;
 		this.Down = true;
 		this.StartPosition.X = position.X;
@@ -221,14 +225,14 @@ Mouse.prototype = {
 	},
 	OnMouseMove: function(event){
 		if(this.RealDown == false){ return; }
-		var position = this.GetEventPoistion(event);
+		var position = this.GetEventPoistion({X: event.clientX, Y: event.clientY});
 		this.RealDown = true;
 		this.Down = true;
 		this.EndPosition.X = position.X;
 		this.EndPosition.Y = position.Y;
 	},
 	OnMouseUp: function(event){
-		var position = this.GetEventPoistion(event);
+		var position = this.GetEventPoistion({X: event.clientX, Y: event.clientY});
 		this.RealDown = false;
 		this.EndPosition.X = position.X;
 		this.EndPosition.Y = position.Y;
@@ -236,6 +240,29 @@ Mouse.prototype = {
 	OnMouseLeave: function(){
 		this.RealDown = false;
 		this.Down = false;
+	},
+	OnTouchStart: function(event){
+		var position = this.GetEventPoistion({X: event.touches[0].clientX, Y: event.touches[0].clientY});
+		this.RealDown = true;
+		this.Down = true;
+		this.StartPosition.X = position.X;
+		this.StartPosition.Y = position.Y;
+		this.EndPosition.X = position.X;
+		this.EndPosition.Y = position.Y;
+	},
+	OnTouchMove: function(event){
+		if(this.RealDown == false){ return; }
+		var position = this.GetEventPoistion({X: event.touches[0].clientX, Y: event.touches[0].clientY});
+		this.RealDown = true;
+		this.Down = true;
+		this.EndPosition.X = position.X;
+		this.EndPosition.Y = position.Y;
+	},
+	OnTouchEnd: function(event){
+		var position = this.GetEventPoistion({X: event.touches[0].clientX, Y: event.touches[0].clientY});
+		this.RealDown = false;
+		this.EndPosition.X = position.X;
+		this.EndPosition.Y = position.Y;
 	},
 	Update: function(){
 		if(this.RealDown == false){
