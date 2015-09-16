@@ -68,11 +68,10 @@ GameScreen.prototype = {
 	Update: function(){
 		for(var i=0,n=this.Entities.length;i<n;i++){
 			var entity = this.Entities[i];
-			if(!entity.GameEntity.Deleted){
-				entity.GameEntity.Update();
-				if(entity.Update){
-					entity.Update();
-				}
+			if(entity.GameEntity.Deleted){ continue; }
+			entity.GameEntity.Update();
+			if(entity.Update){
+				entity.Update();
 			}
 		}
 	},
@@ -80,9 +79,8 @@ GameScreen.prototype = {
 		this.Ctx.clearRect(0, 0, this.Size.X, this.Size.Y);
 		for(var i=0,n=this.Entities.length;i<n;i++){
 			var entity = this.Entities[i];
-			if(!entity.GameEntity.Deleted){
-				entity.GameEntity.Draw(factor);
-			}
+			if(entity.GameEntity.Deleted){ continue; }
+			entity.GameEntity.Draw(factor);
 		}
 	},
 	
@@ -101,6 +99,20 @@ GameScreen.prototype = {
 	},
 	AddEntity: function(newEntity){
 		this.NewEntities.push(newEntity);
+	},
+	GetEntitiesUnderPoint: function(point, type){
+		var entities = [];
+		for(var i=0,n=this.Entities.length;i<n;i++){
+			var entity = this.Entities[i];
+			if(entity.GameEntity.Deleted){ continue; }
+			if(type){
+				if(entity.GameEntity.Type!==type){ continue; }
+			}
+			if(entity.GameEntity.IntersectPoint(point)){
+				entities.push(entity);
+			}
+		}
+		return entities;
 	},
 	Debug: false
 };
@@ -154,6 +166,15 @@ GameEntity.prototype = {
 	},
 	Delete: function(){
 		this.Deleted = true;
+	},
+	IntersectPoint: function(point){
+		return (
+			point.X < (this.PositionDest.X + (this.Size.X/2)) &&
+			point.X > (this.PositionDest.X - (this.Size.X/2)) &&
+			point.Y < (this.PositionDest.Y + (this.Size.Y/2)) &&
+			point.Y > (this.PositionDest.Y - (this.Size.Y/2)) &&
+			true
+		);
 	},
 	Debug: false
 };
