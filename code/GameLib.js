@@ -259,10 +259,7 @@ Mouse.prototype = {
 		this.EndPosition.Y = position.Y;
 	},
 	OnTouchEnd: function(event){
-		var position = this.GetEventPoistion({X: event.touches[0].clientX, Y: event.touches[0].clientY});
 		this.RealDown = false;
-		this.EndPosition.X = position.X;
-		this.EndPosition.Y = position.Y;
 	},
 	Update: function(){
 		if(this.RealDown == false){
