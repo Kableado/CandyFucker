@@ -1,6 +1,6 @@
 
 window.Images = new ImageLoader();
-
+window.Sounds = new SoundLoader();
 
 
 /////////////////////////////////////////
@@ -69,6 +69,7 @@ CandyEntity.prototype = {
 			this.Game.GameScreen.AddEntity(frag);
 		}
 		this.GameEntity.Delete();
+		window.Sounds.PlaySound("Explosion");
 	},
 	SetOffset: function(x, y){
 		this.GameEntity.UpdatePosition({
@@ -112,21 +113,38 @@ var CandyFucker = function(idScreen, idInfoDisplay){
 	
 	this.MaxSwapDistance = 32;
 	
-	window.Images.LoadImages(
-		[
-			{Name: "Red", Url: "gfx/Red.png"},
-			{Name: "Blue", Url: "gfx/Blue.png"},
-			{Name: "Cyan", Url: "gfx/Cyan.png"},
-			{Name: "Green", Url: "gfx/Green.png"},
-			{Name: "Yellow", Url: "gfx/Yellow.png"},
-		],
-		function(){
-			self.GameScreen.Start();
-		}
-	);
-	
+	this.LoadImages();
 };
 CandyFucker.prototype = {
+	LoadImages: function(){
+		var self = this;
+
+		window.Images.LoadImages(
+			[
+				{Name: "Red", Url: "gfx/Red.png"},
+				{Name: "Blue", Url: "gfx/Blue.png"},
+				{Name: "Cyan", Url: "gfx/Cyan.png"},
+				{Name: "Green", Url: "gfx/Green.png"},
+				{Name: "Yellow", Url: "gfx/Yellow.png"},
+			],
+			function(){
+				self.LoadSounds();
+			}
+		);
+	},
+	LoadSounds: function(){
+		var self = this;
+
+		window.Sounds.LoadSounds(
+			[
+				{Name: "Explosion", Url: "sfx/explosion1.wav"},
+				{Name: "PickCandy", Url: "sfx/pickcandy.wav"},
+			],
+			function(){
+				self.GameScreen.Start();
+			}
+		);
+	},
 	Init: function(gameScreen){
 		this.BuildGrid(12, 12);
 		this.UpdateInfoDisplay();
@@ -380,6 +398,7 @@ CandyFucker.prototype = {
 				this.CancelSwap();
 			}else{
 				this.StartSwap(candies[0]);
+				window.Sounds.PlaySound("PickCandy");
 			}
 		}
 		if(this.SwapDirection!=null){
