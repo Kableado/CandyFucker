@@ -316,7 +316,7 @@ Mouse.prototype = {
 //
 // ImageLoader
 //
-var ImageLoader = function(imageList, funcOnLoad){
+var ImageLoader = function(){
 	this.Images = {};
 };
 ImageLoader.prototype = {
@@ -369,6 +369,61 @@ ImageLoader.prototype = {
 	},
 	GetImage: function(name){
 		return this.Images[name];
+	},
+	Debug: false
+};
+
+
+/////////////////////////////////////////
+//
+// SoundLoader
+//
+var SoundLoader = function(){
+	this.Sounds = {};
+};
+SoundLoader.prototype = {
+	LoadSounds: function(soundsList, funcOnLoad){
+		this.SoundsCount = soundsList.length;
+		this.FuncOnLoad = funcOnLoad;
+		
+		var i,n;
+		for(i=0,n=soundsList.length;i<n;i++){
+			var name = soundsList[i].Name;
+			this.Sounds[name] = new Audio();
+		}
+		
+		var self = this;
+		var launched = false;
+		var privateOnLoad = function(){
+			if(launched){ return; }
+			var count = 0;
+			for (var name in self.Sounds) {
+				if (self.Sounds.hasOwnProperty(name)) {
+					if(self.Sounds[name].readyState){
+						count++;
+					}
+				}
+			}
+			
+			console.log("Sounds: " + count + "/" + self.SoundsCount);
+			if(count == self.SoundsCount){
+				launched = true;
+				if(self.FuncOnLoad){
+					self.FuncOnLoad();
+				}
+			}
+		};
+		for(i=0,n=soundsList.length;i<n;i++){
+			var name = soundsList[i].Name;
+			this.Sounds[name].onloadeddata = privateOnLoad;
+			this.Sounds[name].src = soundsList[i].Url;
+		}
+		privateOnLoad();
+	},
+	PlaySound: function(name){
+		var sndOrig = this.Sounds[name];
+		var sndCopy = sndOrig.cloneNode();
+		sndCopy.play();
 	},
 	Debug: false
 };
