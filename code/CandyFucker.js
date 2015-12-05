@@ -1,27 +1,33 @@
 
 window.Images = new ImageLoader();
 
+
+
+/////////////////////////////////////////
+//
+// Particle
+//
 var Particle = function(game, position, image) {
-  this.Game = game;
-  this.GameEntity = new GameEntity(
-    game.GameScreen,
-    position,
-    {X:image.naturalWidth, Y:image.naturalHeight},
-    image,
-    "Particle"
-  );
-  this.Speed = Vec2D.Scale(Vec2D.Normalize({
-    X: Math.floor(Math.random() * 33)-16,
-    Y: Math.floor(Math.random() * 33)-16}),32);
+	this.Game = game;
+	this.GameEntity = new GameEntity(
+		game.GameScreen,
+		position,
+		{X:image.naturalWidth, Y:image.naturalHeight},
+		image,
+		"Particle"
+	);
+	this.Speed = Vec2D.Scale(Vec2D.Normalize({
+		X: Math.floor(Math.random() * 33)-16,
+		Y: Math.floor(Math.random() * 33)-16}),32);
 };
 Particle.prototype = {
-  Update: function() {
-    this.Speed = Vec2D.Scale(this.Speed, 1.2);
-    this.GameEntity.AddPosition(this.Speed);
-    if(this.GameEntity.InsideScreen()==false){
-      this.GameEntity.Delete();
-    }
-  }
+	Update: function() {
+		this.Speed = Vec2D.Scale(this.Speed, 1.2);
+		this.GameEntity.AddPosition(this.Speed);
+		if(this.GameEntity.InsideScreen()==false){
+			this.GameEntity.Delete();
+		}
+	}
 };
 
 
@@ -33,7 +39,7 @@ var CandyEntity = function(game, color, gridPosition){
 	this.Game = game;
 	this.GridPosition = gridPosition || {X: 0, Y: 0};
 	this.Color = color;
-  this.GameEntity = new GameEntity(
+	this.GameEntity = new GameEntity(
 		game.GameScreen, 
 		null, 
 		{X: 32, Y: 32}, 
@@ -53,15 +59,15 @@ CandyEntity.prototype = {
 		});
 	},
 	Delete: function(){
-    var frag;
-    for(var i=0; i<4; i++){
-      frag = new Particle(
-        this.Game,
-        this.GameEntity.PositionDest,
-        Images.GetImage(this.Color)
-      );
-      this.Game.GameScreen.AddEntity(frag);
-    }
+		var frag;
+		for(var i=0; i<4; i++){
+			frag = new Particle(
+				this.Game,
+				this.GameEntity.PositionDest,
+				Images.GetImage(this.Color)
+			);
+			this.Game.GameScreen.AddEntity(frag);
+		}
 		this.GameEntity.Delete();
 	},
 	SetOffset: function(x, y){
@@ -299,8 +305,6 @@ CandyFucker.prototype = {
 		var entCandy = this.RemoveCandy(x, y);
 		if(entCandy){
 			entCandy.Delete();
-			// FIXME: explosion FX
-			
 			return true;
 		}
 		return false;

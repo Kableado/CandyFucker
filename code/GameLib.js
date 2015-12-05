@@ -1,20 +1,26 @@
-var Vec2D = {
-  Scale: function(vecIn, scale) {
-    return {
-      X: vecIn.X * scale,
-      Y: vecIn.Y * scale
-    };
-  },
-  Normalize: function(vecIn){
-    var len = Math.sqrt(
-      (vecIn.X * vecIn.X) +
-      (vecIn.Y * vecIn.Y));
-    return {
-      X: vecIn.X / len, 
-      Y: vecIn.Y / len};
-  }
-};
 
+
+/////////////////////////////////////////
+//
+// Vec2D
+//
+var Vec2D = {
+	Scale: function(vecIn, scale) {
+		return {
+			X: vecIn.X * scale,
+			Y: vecIn.Y * scale
+		};
+	},
+	Normalize: function(vecIn){
+		var len = Math.sqrt(
+			(vecIn.X * vecIn.X) +
+			(vecIn.Y * vecIn.Y));
+		return {
+			X: vecIn.X / len, 
+			Y: vecIn.Y / len
+		};
+	}
+};
 
 
 /////////////////////////////////////////
@@ -182,10 +188,10 @@ GameEntity.prototype = {
 		this.PositionDest.X = position.X;
 		this.PositionDest.Y = position.Y;
 	},
-  AddPosition: function(delta) {
-    this.PositionDest.X = this.Position.X + delta.X;
-    this.PositionDest.Y = this.Position.Y + delta.Y;
-  },
+	AddPosition: function(delta) {
+		this.PositionDest.X = this.Position.X + delta.X;
+		this.PositionDest.Y = this.Position.Y + delta.Y;
+	},
 	Delete: function(){
 		this.Deleted = true;
 	},
@@ -198,16 +204,16 @@ GameEntity.prototype = {
 			true
 		);
 	},
-  InsideScreen: function(){
-    return (
-      (this.Position.X+(this.Size.X/2))>0 &&
-      (this.Position.Y+(this.Size.Y/2))>0 &&
-      (this.Position.X-(this.Size.X/2))
-        <this.GameScreen.Size.X &&
-      (this.Position.Y-(this.Size.Y/2))
-        <this.GameScreen.Size.Y
-    );
-  },
+	InsideScreen: function(){
+		return (
+			(this.Position.X+(this.Size.X/2))>0 &&
+			(this.Position.Y+(this.Size.Y/2))>0 &&
+			(this.Position.X-(this.Size.X/2))
+				<this.GameScreen.Size.X &&
+			(this.Position.Y-(this.Size.Y/2))
+				<this.GameScreen.Size.Y
+		);
+	},
 	Debug: false
 };
 
