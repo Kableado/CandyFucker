@@ -43,7 +43,7 @@ var CandyEntity = function(game, color, gridPosition){
 		game.GameScreen, 
 		null, 
 		{X: 32, Y: 32}, 
-		Images.GetImage(color), 
+		Images.GetImage("Balls" + color), 
 		"Candy"
 	);
 	this.SetGridPosition(gridPosition.X, gridPosition.Y);
@@ -121,16 +121,16 @@ CandyFucker.prototype = {
 
 		window.Images.LoadImages(
 			[
-				{Name: "Red", Url: "gfx/Red.png"},
-				{Name: "Blue", Url: "gfx/Blue.png"},
-				{Name: "Cyan", Url: "gfx/Cyan.png"},
-				{Name: "Green", Url: "gfx/Green.png"},
-				{Name: "Yellow", Url: "gfx/Yellow.png"},
-				{Name: "FragsRed", Url: "gfx/FragsRed.png"},
-				{Name: "FragsBlue", Url: "gfx/FragsBlue.png"},
-				{Name: "FragsCyan", Url: "gfx/FragsCyan.png"},
-				{Name: "FragsGreen", Url: "gfx/FragsGreen.png"},
-				{Name: "FragsYellow", Url: "gfx/FragsYellow.png"},
+				{Name: "BallsRed",	Url: "gfx/BallsRed.png"},
+				{Name: "BallsBlue",	Url: "gfx/BallsBlue.png"},
+				{Name: "BallsCyan",	Url: "gfx/BallsCyan.png"},
+				{Name: "BallsGreen",	Url: "gfx/BallsGreen.png"},
+				{Name: "BallsYellow",	Url: "gfx/BallsYellow.png"},
+				{Name: "FragsRed",	Url: "gfx/FragsRed.png"},
+				{Name: "FragsBlue",	Url: "gfx/FragsBlue.png"},
+				{Name: "FragsCyan",	Url: "gfx/FragsCyan.png"},
+				{Name: "FragsGreen",	Url: "gfx/FragsGreen.png"},
+				{Name: "FragsYellow",	Url: "gfx/FragsYellow.png"},
 			],
 			function(){
 				self.LoadSounds();
