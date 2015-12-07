@@ -18,11 +18,11 @@ var Particle = function(game, position, image) {
 	);
 	this.Speed = Vec2D.Scale(Vec2D.Normalize({
 		X: Math.floor(Math.random() * 33)-16,
-		Y: Math.floor(Math.random() * 33)-16}),32);
+		Y: Math.floor(Math.random() * 33)-16}),48);
 };
 Particle.prototype = {
 	Update: function() {
-		this.Speed = Vec2D.Scale(this.Speed, 1.2);
+		this.Speed = Vec2D.Scale(this.Speed, 1.5);
 		this.GameEntity.AddPosition(this.Speed);
 		if(this.GameEntity.InsideScreen()==false){
 			this.GameEntity.Delete();
@@ -64,7 +64,7 @@ CandyEntity.prototype = {
 			frag = new Particle(
 				this.Game,
 				this.GameEntity.PositionDest,
-				Images.GetImage(this.Color)
+				Images.GetImage("Frags" + this.Color)
 			);
 			this.Game.GameScreen.AddEntity(frag);
 		}
@@ -126,6 +126,11 @@ CandyFucker.prototype = {
 				{Name: "Cyan", Url: "gfx/Cyan.png"},
 				{Name: "Green", Url: "gfx/Green.png"},
 				{Name: "Yellow", Url: "gfx/Yellow.png"},
+				{Name: "FragsRed", Url: "gfx/FragsRed.png"},
+				{Name: "FragsBlue", Url: "gfx/FragsBlue.png"},
+				{Name: "FragsCyan", Url: "gfx/FragsCyan.png"},
+				{Name: "FragsGreen", Url: "gfx/FragsGreen.png"},
+				{Name: "FragsYellow", Url: "gfx/FragsYellow.png"},
 			],
 			function(){
 				self.LoadSounds();
