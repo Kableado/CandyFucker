@@ -453,7 +453,8 @@ CandyFucker.prototype = {
 			[
 				{
 					Name: "Explosion",
-					Url: "sfx/explosion1.wav"
+					Url: "sfx/explosion1.wav",
+					Limit: 1
 				},
 				{
 					Name: "PickCandy",
@@ -475,6 +476,7 @@ CandyFucker.prototype = {
 		this.UpdateInfoDisplay();
 	},
 	Proc: function () {
+		window.Sounds.ResetCounters();
 		if (this.Locked) {
 			if (this.Falling) {
 				if (!this.Board.CandyFall()) {

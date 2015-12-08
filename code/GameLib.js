@@ -442,6 +442,7 @@ ImageLoader.prototype = {
 //
 var SoundLoader = function () {
 	this.Sounds = {};
+	this.Limits = {};
 };
 SoundLoader.prototype = {
 	LoadSounds: function (soundsList, funcOnLoad) {
@@ -450,11 +451,16 @@ SoundLoader.prototype = {
 
 		var soundName;
 
-		var i,
-			n;
+		var i, n;
 		for (i = 0, n = soundsList.length; i < n; i++) {
 			soundName = soundsList[i].Name;
 			this.Sounds[soundName] = new Audio();
+			if (soundsList[i].Limit) {
+				this.Limits[soundName] = {
+					Max: soundsList[i].Limit,
+					Count: 0
+				};
+			}
 		}
 
 		var self = this;
@@ -488,9 +494,22 @@ SoundLoader.prototype = {
 		privateOnLoad();
 	},
 	PlaySound: function (name) {
+		if (this.Limits[name]) {
+			if (this.Limits[name].Max <= this.Limits[name].Count){
+				return;
+			}
+			this.Limits[name].Count++;
+		}
 		var sndOrig = this.Sounds[name];
 		var sndCopy = sndOrig.cloneNode();
 		sndCopy.play();
+	},
+	ResetCounters: function () {
+		for (var name in this.Limits) {
+			if (this.Limits.hasOwnProperty(name)) {
+				this.Limits[name].Count = 0;
+			}
+		}
 	},
 	Debug: false
 };
