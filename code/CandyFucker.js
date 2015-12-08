@@ -459,6 +459,10 @@ CandyFucker.prototype = {
 				{
 					Name: "PickCandy",
 					Url: "sfx/pickcandy.wav"
+				},
+				{
+					Name: "SwapInvalid",
+					Url: "sfx/swapinvalid.wav"
 				}
 			],
 			function () {
@@ -527,7 +531,6 @@ CandyFucker.prototype = {
 				this.CancelSwap();
 			} else {
 				this.StartSwap(candies[0]);
-				window.Sounds.PlaySound("PickCandy");
 			}
 		}
 		if (this.SwapDirection !== null) {
@@ -644,6 +647,7 @@ CandyFucker.prototype = {
 		this.SwapCandy1 = candy;
 		this.SwapCandy2 = null;
 		this.SwapDistance = 0;
+		window.Sounds.PlaySound("PickCandy");
 	},
 	CancelSwap: function () {
 		this.GameScreen.Mouse.Cancel();
@@ -667,10 +671,22 @@ CandyFucker.prototype = {
 		var y1 = this.SwapCandy1.GridPosition.Y;
 		var x2 = this.SwapCandy2.GridPosition.X;
 		var y2 = this.SwapCandy2.GridPosition.Y;
+		
+		// Try swapping
 		var candy1 = this.Board.RemoveCandy(x1, y1);
 		var candy2 = this.Board.RemoveCandy(x2, y2);
 		this.Board.SetCandy(x2, y2, candy1);
 		this.Board.SetCandy(x1, y1, candy2);
+		var runs = this.Board.ScanRuns();
+		if(runs.length === 0){
+			window.Sounds.PlaySound("SwapInvalid");
+			var candy1 = this.Board.RemoveCandy(x1, y1);
+			var candy2 = this.Board.RemoveCandy(x2, y2);
+			this.Board.SetCandy(x2, y2, candy1);
+			this.Board.SetCandy(x1, y1, candy2);
+		}
+		
+		// Cleanup
 		this.GameScreen.Mouse.Cancel();
 		this.SwapDirection = null;
 		this.SwapCandy1 = null;
