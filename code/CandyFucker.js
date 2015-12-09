@@ -65,7 +65,7 @@ CandyEntity.prototype = {
 			Y: this.Game.GridOffset.Y + (y * 32)
 		});
 	},
-	Delete: function () {
+	Explode: function () {
 		var frag;
 		var i;
 		for (i = 0; i < 4; i++) {
@@ -78,6 +78,9 @@ CandyEntity.prototype = {
 		}
 		this.GameEntity.Delete();
 		window.Sounds.PlaySound("Explosion");
+	},
+	Delete: function () {
+		this.GameEntity.Delete();
 	},
 	SetOffset: function (x, y) {
 		this.GameEntity.UpdatePosition({
@@ -136,6 +139,7 @@ CandyBoard.prototype = {
 		var candy = this.Grid[y][x];
 		this.Grid[y][x] = null;
 		this.Changed = true;
+		
 		return candy;
 	},
 	BuildGrid: function (width, height) {
@@ -297,12 +301,20 @@ CandyBoard.prototype = {
 	ExplodeCandy: function (x, y) {
 		var entCandy = this.RemoveCandy(x, y);
 		if (entCandy) {
+			entCandy.Explode();
+			return true;
+		}
+		return false;
+	},
+	DeleteCandy: function (x, y) {
+		var entCandy = this.RemoveCandy(x, y);
+		if (entCandy) {
 			entCandy.Delete();
 			return true;
 		}
 		return false;
 	},
-	RemoveRuns: function (runs) {
+	ExplodeRuns: function (runs) {
 		var pointsMultiplier = 10;
 		var points = 0;
 		var i;
@@ -328,6 +340,25 @@ CandyBoard.prototype = {
 			}
 		}
 		return points;
+	},
+	RemoveRuns: function (runs) {
+		var i;
+		var n;
+		var entCandy;
+		for (i = 0, n = runs.length; i < n; i++) {
+			var run = runs[i];
+			if (run.Start.X === run.End.X) {
+				// Vertical run
+				for (var y = run.Start.Y; y <= run.End.Y; y++) {
+					this.DeleteCandy(run.Start.X, y);
+				}
+			} else {
+				// Horizontal run
+				for (var x = run.Start.X; x <= run.End.X; x++) {
+					this.DeleteCandy(x, run.Start.Y);
+				}
+			}
+		}
 	},
 	CandyFall: function () {
 		var falling = false;
@@ -359,6 +390,22 @@ CandyBoard.prototype = {
 			}
 		}
 		return falling;
+	},
+	StabilizeBoard: function(){
+		do{
+			var runs = this.ScanRuns();
+			if(runs.length>0){
+				this.RemoveRuns(runs);
+				while(this.CandyFall()){}
+			}
+		}while(runs.length>0);
+		var x, y;
+		for (x = 0; x < this.GridSize.X; x++) {
+			for (y = 0; y < this.GridSize.Y; y++) {
+				var candy = this.GetCandy(x, y);
+				candy.SetGridPosition(x, y);
+			}
+		}
 	},
 	Debug: false
 };
@@ -476,6 +523,7 @@ CandyFucker.prototype = {
 		this.GridOffset.Y = (this.GameScreen.Size.Y - ((height - 1) * 32)) / 2.0;
 
 		this.Board.BuildGrid(12, 12);
+		this.Board.StabilizeBoard();
 
 		this.UpdateInfoDisplay();
 	},
@@ -514,7 +562,7 @@ CandyFucker.prototype = {
 	},
 	ApplyRules: function () {
 		var runs = this.Board.ScanRuns();
-		var points = this.Board.RemoveRuns(runs);
+		var points = this.Board.ExplodeRuns(runs);
 		if (points > 0) {
 			this.Score += points;
 			this.UpdateInfoDisplay();
