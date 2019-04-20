@@ -1,16 +1,19 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 	<meta charset="UTF-8" />
 	<title>Candy Fucker</title>
 	<link rel="shortcut icon" href="gfx/favicon.ico" type="image/x-icon" />
-	<meta name="viewport"
-		content="width=device-width, initial-scale=1, maximum-scale=1" />
+	<meta name="theme-color" content="#000000"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
 	<link href="style.css" type="text/css" rel="stylesheet" />
+	<link rel="manifest" href="manifest.json">
 </head>
+
 <body>
 	<div id="divLogo">
-		<img src="gfx/logo.png" alt="Candy Fucker"/>
+		<img src="gfx/logo.png" alt="Candy Fucker" />
 	</div>
 	<div id="divInfoDisplay"></div>
 	<div id="divScreen">
@@ -19,7 +22,14 @@
 	<script src="code/GameLib.js"></script>
 	<script src="code/CandyFucker.js"></script>
 	<script>
+		if ('serviceWorker' in navigator) {
+			navigator.serviceWorker.register('ServiceWorker.js')
+				.then(function () {
+					console.log('Service Worker Registered');
+				});
+		}
 		new CandyFucker("cnvScreen", "divInfoDisplay");
 	</script>
 </body>
+
 </html>
