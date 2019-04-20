@@ -59,6 +59,7 @@ Mouse.prototype = {
 		this.StartPosition.Y = position.Y;
 		this.EndPosition.X = position.X;
 		this.EndPosition.Y = position.Y;
+		event.preventDefault();
 	},
 	OnMouseMove: function (event) {
 		if (this.RealDown === false) {
@@ -72,6 +73,7 @@ Mouse.prototype = {
 		this.Down = true;
 		this.EndPosition.X = position.X;
 		this.EndPosition.Y = position.Y;
+		event.preventDefault();
 	},
 	OnMouseUp: function (event) {
 		var position = this.GetEventPoistion({
@@ -81,10 +83,12 @@ Mouse.prototype = {
 		this.RealDown = false;
 		this.EndPosition.X = position.X;
 		this.EndPosition.Y = position.Y;
+		event.preventDefault();
 	},
 	OnMouseLeave: function () {
 		this.RealDown = false;
 		this.Down = false;
+		event.preventDefault();
 	},
 	OnTouchStart: function (event) {
 		var position = this.GetEventPoistion({
@@ -97,6 +101,7 @@ Mouse.prototype = {
 		this.StartPosition.Y = position.Y;
 		this.EndPosition.X = position.X;
 		this.EndPosition.Y = position.Y;
+		event.preventDefault();
 	},
 	OnTouchMove: function (event) {
 		if (this.RealDown === false) {
@@ -110,9 +115,11 @@ Mouse.prototype = {
 		this.Down = true;
 		this.EndPosition.X = position.X;
 		this.EndPosition.Y = position.Y;
+		event.preventDefault();
 	},
 	OnTouchEnd: function () {
 		this.RealDown = false;
+		event.preventDefault();
 	},
 	Update: function () {
 		if (this.RealDown === false) {

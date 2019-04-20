@@ -1,4 +1,4 @@
-var cacheName = 'CandyFucker-v2';
+var cacheName = 'CandyFucker-v3';
 var filesToCache = [
     './index.html',
     './style.css',
